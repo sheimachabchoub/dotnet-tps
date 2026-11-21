@@ -7,3 +7,4 @@
 ## Local databases and secrets
 *.db
 *.local.json
+tp8_pdf_pages/
