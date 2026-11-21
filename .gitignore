@@ -1,0 +1,9 @@
+## Visual Studio
+.vs/
+**/bin/
+**/obj/
+*.user
+
+## Local databases and secrets
+*.db
+*.local.json
