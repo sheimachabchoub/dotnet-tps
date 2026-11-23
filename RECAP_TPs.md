@@ -14,7 +14,7 @@ Pour chaque dossier de `D:\.net\repos` : l'énoncé correspondant, ce que fait l
 | `TP5` (branche `tp5_atelier_seance2`) | Atelier 5 — Movies API | Web API + DTO + AutoMapper | ✅ | ✅ |
 | `TP6_WEBAPI` | TP6 — Gestion des comptes bancaires | Web API + EF Core | ✅ | ✅ |
 | `TP7_CLEAN_ARCHITECTURE` (branche `master`) | TP7 — API Clean Architecture | 4 couches | ✅ | ✅ |
-| `TP8_MICROSERVICES` | Atelier 8 — Microservices | 3 API + Ocelot + RabbitMQ | ✅ | ⚠️ HTTP/Gateway OK, RabbitMQ bloqué (WSL manquant) |
+| `TP8_MICROSERVICES` | Atelier 8 — Microservices | 3 API + Ocelot + RabbitMQ | ✅ | ✅ (flux complet avec RabbitMQ) |
 | `tp9` | Atelier 9 — Sécuriser une API avec JWT | Web API + Identity + JWT | ✅ | ✅ (après `update-database`, voir §8) |
 | `tp10` | Atelier 10 — Blazor Partie 1 | API + Blazor WebAssembly | ✅ | ✅ |
 
@@ -191,11 +191,9 @@ dotnet run --project ApiGateway --urls http://localhost:5162
 **Vérifié :**
 - `GET` direct sur ProductsAPI et OrdersAPI → 200.
 - `GET /apigateway/Products` et `/apigateway/Orders` via Ocelot → 200 (la gateway route bien).
-- ⚠️ `POST /apigateway/Products` reste bloqué : **RabbitMQ ne tourne pas**, donc la publication du message échoue (`Connection failed, host 127.0.0.1:4001`). Docker Desktop est installé mais ne démarre pas car **WSL n'est pas installé** sur ce PC. À faire une fois (PowerShell en administrateur, puis redémarrer le PC) :
-```powershell
-wsl --install
-```
-Ensuite ouvrir Docker Desktop, puis `docker compose up -d` dans `TP8_MICROSERVICES` avant de lancer les 3 projets.
+- Avec RabbitMQ lancé (Docker Desktop + WSL) : `POST /apigateway/Products` → **201**, le message `ProductCreated` passe par la file `event-listener` et le produit apparaît dans la base `OrdersMicroserviceDB` (consommateur OrdersAPI). `POST /apigateway/Orders` (`customerName`, `productId`) → **201**. Données de test supprimées ensuite.
+- Correction faite : sur ce PC, RabbitMQ plantait au démarrage (`.erlang.cookie: eacces`). Ajout de `user: rabbitmq` dans `docker-compose.yml`, ce qui règle le problème.
+- Prérequis : WSL installé (`wsl --install`), Docker Desktop ouvert, puis `docker compose up -d` avant de lancer les 3 projets.
 
 ---
 
